@@ -80,3 +80,45 @@ htmlcov/
 screenshots/
 !assets/screenshots/
 
+
+# Environment files (protect real .env files)
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+*.env
+
+# Logs
+logs/
+*.log
+
+# Uploads
+uploads/
+backend/uploads/
+
+# Backups
+backups/
+backend/backups/
+
+# Cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+

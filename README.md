@@ -286,3 +286,57 @@ Desarrollado por el equipo de Manus AI como parte del proyecto de sistema de vot
 - `tests/security_tests.py` - Pruebas automatizadas de penetración
 - `tests/manual_security_tests.py` - Análisis de código estático
 
+
+
+## ⚙️ Configuración de Entorno
+
+### Archivos de Configuración Disponibles
+
+| Archivo | Propósito | Uso |
+|---------|-----------|-----|
+| `backend/.env.example` | Plantilla completa documentada | Referencia y documentación |
+| `backend/.env.development` | Configuración para desarrollo | Desarrollo local |
+| `backend/.env.production` | Configuración para producción | Despliegue seguro |
+| `backend/README_ENV.md` | Documentación completa | Guía de configuración |
+
+### 🚀 Configuración Rápida
+
+#### Para Desarrollo Local
+```bash
+cd backend
+cp .env.development .env
+pip install -r requirements.txt
+python src/main.py
+```
+
+#### Para Producción
+```bash
+cd backend
+cp .env.production .env
+# ⚠️ IMPORTANTE: Cambiar claves secretas
+# Generar clave JWT: openssl rand -hex 32
+# Configurar PostgreSQL en DATABASE_URL
+```
+
+### 🗄️ Base de Datos
+
+#### SQLite (Desarrollo)
+```bash
+DATABASE_URL=sqlite:///./urna_virtual.db
+```
+
+#### PostgreSQL (Producción Recomendada)
+```bash
+DATABASE_URL=postgresql://usuario:password@host:puerto/database
+```
+
+### 🔐 Variables Críticas de Seguridad
+
+⚠️ **CAMBIAR OBLIGATORIAMENTE EN PRODUCCIÓN:**
+- `JWT_SECRET_KEY` - Clave secreta para tokens JWT
+- `VOTE_ENCRYPTION_KEY` - Clave para cifrado de votos
+- `DATABASE_URL` - Conexión a PostgreSQL
+
+### 📖 Documentación Completa
+Ver `backend/README_ENV.md` para configuración detallada, troubleshooting y mejores prácticas.
+
