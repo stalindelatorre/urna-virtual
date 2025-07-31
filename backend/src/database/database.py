@@ -1,8 +1,11 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
 import os
 
+# Cargar el archivo .env
+load_dotenv()
 # Database configuration
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./urna_virtual.db")
 

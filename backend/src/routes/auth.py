@@ -9,7 +9,7 @@ from datetime import timedelta
 
 auth_router = APIRouter()
 
-@auth_router.post("/login", response_model=Token)
+@auth_router.post("/login")
 async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     """Authenticate user and return JWT tokens"""
     user = db.query(User).filter(User.email == login_data.email).first()
@@ -36,11 +36,11 @@ async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
     refresh_token = create_refresh_token(
         data={"sub": str(user.id), "tenant_id": str(user.tenant_id) if user.tenant_id else None, "rol": user.rol}
     )
-    
+    print(user.id, user.email, user.nombre, user.apellido, user.rol, user.tenant_id, user.activo)
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
-        "token_type": "bearer",
+        #"token_type": "bearer",
         "user": {
             "id": str(user.id),
             "email": user.email,
