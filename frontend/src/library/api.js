@@ -53,12 +53,12 @@ api.interceptors.response.use(
 // Funciones de autenticación
 export const authAPI = {
   login: async ({ email, password }) => {
-    console.log('Logging in with:', { email, password });
+    //console.log('Logging in with:', { email, password });
     const response = await api.post('/auth/login', {
       email: email,
       password: password
     });
-    return response.data;
+    return response;
   },
   
   getCurrentUser: async () => {
