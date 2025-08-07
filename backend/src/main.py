@@ -15,6 +15,8 @@ from src.routes.tenants import tenants_router
 from src.routes.users import users_router
 from src.routes.elections import elections_router
 from src.routes.candidates import candidates_router
+from src.routes.cargos import cargos_router
+from src.routes.listas import listas_router
 from src.routes.votes import votes_router
 from src.routes.simulacros import simulacros_router
 from src.routes.metrics import metrics_router
@@ -45,10 +47,12 @@ app.include_router(tenants_router, prefix="/api/v1/tenants", tags=["Tenants"])
 app.include_router(users_router, prefix="/api/v1/users", tags=["Users"])
 app.include_router(elections_router, prefix="/api/v1/elecciones", tags=["Elections"])
 app.include_router(candidates_router, prefix="/api/v1/candidatos", tags=["Candidates"])
+app.include_router(cargos_router, prefix="/api/v1/cargos", tags=["Cargos"])
+app.include_router(listas_router, prefix="/api/v1/listas", tags=["Listas"])
 app.include_router(votes_router, prefix="/api/v1/votos", tags=["Votes"])
 app.include_router(simulacros_router, prefix="/api/v1/simulacros", tags=["Simulacros"])
 app.include_router(metrics_router, prefix="/api/v1/metricas", tags=["Metrics"])
-app.include_router(reports_router, prefix="/api/v1/reportes", tags=["Reports"])
+app.include_router(reports_router, prefix="/api/v1/reports", tags=["Reports"])
 
 # Serve static files
 static_folder = os.path.join(os.path.dirname(__file__), 'static')

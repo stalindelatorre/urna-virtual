@@ -77,19 +77,27 @@ export const electionsAPI = {
   getAll: async () => {
     const response = await api.get('/elections/');
     return response.data;
+  },
+  getById: async (electionId) => {
+    const response = await api.get(`/elections/${electionId}`);
+    return response.data;
   }
 };
 
 export const candidatesAPI = {
   getAll: async () => {
-    const response = await fetch(`/api/candidates`);
-    return response.json();
+    const response = await api.get(`/candidates/`);
+    return response.data;
   }
 };
 
 export const votesAPI = {
-  vote: async (voteData) => {
-    const response = await api.post('/votos/', voteData);
+  cast: async (voteData) => {
+    const response = await api.post("/votos/", voteData);
+    return response.data;
+  },
+  getMyVote: async (electionId) => {
+    const response = await api.get(`/votos/mi-voto/${electionId}`);
     return response.data;
   }
 };
@@ -102,9 +110,15 @@ export const metricsAPI = {
 };
 
 export const reportsAPI = {
-  getAll: async () => {
-    const response = await fetch(`/api/results`);
-    return response.json();
+  getPlatformUsage: async (startDate, endDate) => {
+    const response = await api.get(`/reports/super-admin/uso-plataforma`, {
+      params: { fecha_inicio: startDate, fecha_fin: endDate }
+    });
+    return response.data;
+  },
+  getGlobalStats: async () => {
+    const response = await api.get(`/reports/super-admin/estadisticas-globales`);
+    return response.data;
   }
 }
 export default api;
