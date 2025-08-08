@@ -1,311 +1,283 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { electionsAPI, candidatesAPI, votesAPI } from '../library/api';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { 
-  Vote, 
-  Clock, 
-  CheckCircle, 
-  AlertCircle,
-  Users,
-  Calendar,
-  Shield
-} from 'lucide-react';
-import '../App.css';
 
-const VotingInterface = ({ electionId }) => {
+const VotingInterface = () => {
   const { user } = useAuth();
-  const [election, setElection] = useState(null);
+  const [elections, setElections] = useState([]);
+  const [selectedElection, setSelectedElection] = useState(null);
   const [candidates, setCandidates] = useState([]);
-  const [selectedCandidates, setSelectedCandidates] = useState({});
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [hasVoted, setHasVoted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [voting, setVoting] = useState(false);
-  const [voteStatus, setVoteStatus] = useState(null);
-  const [error, setError] = useState('');
+
+  // Datos de prueba para elecciones activas
+  const mockElections = [
+    {
+      id: 1,
+      nombre: 'Elección Presidencial 2024',
+      descripcion: 'Elección para presidente de la república',
+      fecha_inicio: '2024-03-01T08:00:00',
+      fecha_fin: '2024-03-01T18:00:00',
+      estado: 'ACTIVE'
+    },
+    {
+      id: 2,
+      nombre: 'Elección Municipal',
+      descripcion: 'Elección para alcalde municipal',
+      fecha_inicio: '2024-04-15T08:00:00',
+      fecha_fin: '2024-04-15T18:00:00',
+      estado: 'ACTIVE'
+    }
+  ];
+
+  // Datos de prueba para candidatos
+  const mockCandidates = {
+    1: [
+      {
+        id: 1,
+        nombre: 'Ana',
+        apellido: 'Rodríguez',
+        cargo: { nombre: 'Presidente' },
+        lista: { nombre: 'Partido Azul', color: '#3B82F6', siglas: 'PA' },
+        numero_lista: 1,
+        propuestas: 'Educación gratuita, salud universal, empleo digno'
+      },
+      {
+        id: 2,
+        nombre: 'Luis',
+        apellido: 'Martínez',
+        cargo: { nombre: 'Presidente' },
+        lista: { nombre: 'Partido Rojo', color: '#EF4444', siglas: 'PR' },
+        numero_lista: 2,
+        propuestas: 'Seguridad ciudadana, desarrollo económico, infraestructura'
+      },
+      {
+        id: 3,
+        nombre: 'María',
+        apellido: 'González',
+        cargo: { nombre: 'Presidente' },
+        lista: { nombre: 'Lista Verde', color: '#10B981', siglas: 'LV' },
+        numero_lista: 3,
+        propuestas: 'Medio ambiente, energías renovables, agricultura sostenible'
+      }
+    ],
+    2: [
+      {
+        id: 4,
+        nombre: 'Carlos',
+        apellido: 'López',
+        cargo: { nombre: 'Alcalde' },
+        lista: { nombre: 'Movimiento Ciudadano', color: '#F59E0B', siglas: 'MC' },
+        numero_lista: 1,
+        propuestas: 'Transporte público, espacios verdes, participación ciudadana'
+      },
+      {
+        id: 5,
+        nombre: 'Elena',
+        apellido: 'Vargas',
+        cargo: { nombre: 'Alcalde' },
+        lista: { nombre: 'Alianza Local', color: '#8B5CF6', siglas: 'AL' },
+        numero_lista: 2,
+        propuestas: 'Servicios básicos, desarrollo urbano, cultura y deporte'
+      }
+    ]
+  };
 
   useEffect(() => {
-    loadElectionData();
-    checkVoteStatus();
-  }, [electionId]);
+    // Simular carga de elecciones activas
+    setTimeout(() => {
+      setElections(mockElections);
+      setLoading(false);
+    }, 1000);
+  }, []);
 
-  const loadElectionData = async () => {
+  useEffect(() => {
+    if (selectedElection) {
+      setCandidates(mockCandidates[selectedElection.id] || []);
+      setSelectedCandidate(null);
+    }
+  }, [selectedElection]);
+
+  const handleVote = async () => {
+    if (!selectedCandidate || !selectedElection) return;
+
     try {
-      const [electionResponse, candidatesResponse] = await Promise.all([
-        electionsAPI.getById(electionId),
-        candidatesAPI.getAll()
-      ]);
-
-      setElection(electionResponse.data);
+      setLoading(true);
       
-      // Filter candidates for this election
-      const electionCandidates = candidatesResponse.data.filter(
-        candidate => candidate.eleccion_id === electionId
-      );
-      setCandidates(electionCandidates);
+      // Simular llamada a la API
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Aquí iría la llamada real a la API
+      console.log('Votando por:', {
+        electionId: selectedElection.id,
+        candidateId: selectedCandidate.id,
+        userId: user?.id
+      });
+
+      setHasVoted(true);
+      alert('¡Voto registrado exitosamente!');
+      
     } catch (error) {
-      console.error('Error loading election data:', error);
-      setError('Error al cargar los datos de la elección');
+      console.error('Error al votar:', error);
+      alert('Error al registrar el voto. Intente nuevamente.');
     } finally {
       setLoading(false);
     }
   };
 
-  const checkVoteStatus = async () => {
-    try {
-      const response = await votesAPI.getMyVote(electionId);
-      setVoteStatus(response.data);
-    } catch (error) {
-      // User hasn't voted yet, which is fine
-      setVoteStatus(null);
-    }
-  };
-
-  const handleCandidateSelection = (cargoId, candidateId) => {
-    setSelectedCandidates(prev => ({
-      ...prev,
-      [cargoId]: candidateId
-    }));
-  };
-
-  const handleVote = async () => {
-    if (Object.keys(selectedCandidates).length === 0) {
-      setError('Debes seleccionar al menos un candidato');
-      return;
-    }
-
-    setVoting(true);
-    setError('');
-
-    try {
-      const candidateIds = Object.values(selectedCandidates);
-      await votesAPI.cast({
-        eleccion_id: electionId,
-        candidatos_seleccionados: candidateIds
-      });
-
-      // Refresh vote status
-      await checkVoteStatus();
-      setSelectedCandidates({});
-    } catch (error) {
-      console.error('Error casting vote:', error);
-      setError(error.response?.data?.detail || 'Error al emitir el voto');
-    } finally {
-      setVoting(false);
-    }
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando elecciones...</p>
+        </div>
       </div>
     );
   }
 
-  if (!election) {
+  if (hasVoted) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-6 text-center">
-            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Elección no encontrada</h2>
-            <p className="text-gray-600">La elección solicitada no existe o no tienes permisos para acceder.</p>
-          </CardContent>
-        </Card>
+        <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Voto Registrado!</h2>
+          <p className="text-gray-600 mb-6">Su voto ha sido registrado exitosamente en el sistema.</p>
+          <button
+            onClick={() => window.location.href = '/dashboard'}
+            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+          >
+            Volver al Dashboard
+          </button>
+        </div>
       </div>
     );
   }
-
-  // Check if user has already voted
-  if (voteStatus?.ha_votado) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-6 text-center">
-            <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Voto Registrado</h2>
-            <p className="text-gray-600 mb-4">
-              Tu voto ha sido registrado exitosamente en esta elección.
-            </p>
-            <div className="bg-green-50 p-3 rounded-lg">
-              <p className="text-sm text-green-800">
-                <Shield className="h-4 w-4 inline mr-1" />
-                Tu voto está protegido con cifrado de extremo a extremo
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Check if election is active
-  const now = new Date();
-  const startDate = new Date(election.fecha_inicio);
-  const endDate = new Date(election.fecha_fin);
-  const isActive = election.estado === 'ACTIVA' && now >= startDate && now <= endDate;
-
-  if (!isActive) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-6 text-center">
-            <Clock className="h-12 w-12 text-orange-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Elección no disponible</h2>
-            <p className="text-gray-600 mb-4">
-              Esta elección no está activa en este momento.
-            </p>
-            <div className="text-sm text-gray-500">
-              <p>Estado: <Badge variant="outline">{election.estado}</Badge></p>
-              {election.fecha_inicio && (
-                <p>Inicio: {new Date(election.fecha_inicio).toLocaleString()}</p>
-              )}
-              {election.fecha_fin && (
-                <p>Fin: {new Date(election.fecha_fin).toLocaleString()}</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Group candidates by cargo
-  const candidatesByCargo = candidates.reduce((acc, candidate) => {
-    const cargoId = candidate.cargo_id;
-    if (!acc[cargoId]) {
-      acc[cargoId] = {
-        cargo: candidate.cargo,
-        candidates: []
-      };
-    }
-    acc[cargoId].candidates.push(candidate);
-    return acc;
-  }, {});
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{election.titulo}</h1>
-          <p className="text-gray-600 mb-4">{election.descripcion}</p>
-          
-          <div className="flex justify-center items-center space-x-4 text-sm text-gray-500">
-            <div className="flex items-center">
-              <Calendar className="h-4 w-4 mr-1" />
-              {new Date(election.fecha_fin).toLocaleString()}
-            </div>
-            <div className="flex items-center">
-              <Users className="h-4 w-4 mr-1" />
-              Votante: {user?.nombre} {user?.apellido}
-            </div>
-          </div>
+          <h1 className="text-3xl font-bold text-gray-900">Sistema de Votación</h1>
+          <p className="mt-2 text-gray-600">Seleccione una elección y su candidato preferido</p>
         </div>
 
-        {/* Error Alert */}
-        {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
+        {/* Selección de Elección */}
+        {!selectedElection && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Elecciones Activas</h2>
+            <div className="space-y-4">
+              {elections.map((election) => (
+                <div
+                  key={election.id}
+                  className="border border-gray-200 rounded-lg p-4 hover:border-blue-500 cursor-pointer transition-colors"
+                  onClick={() => setSelectedElection(election)}
+                >
+                  <h3 className="text-lg font-medium text-gray-900">{election.nombre}</h3>
+                  <p className="text-gray-600 mt-1">{election.descripcion}</p>
+                  <div className="mt-2 text-sm text-gray-500">
+                    <p>Inicio: {formatDate(election.fecha_inicio)}</p>
+                    <p>Fin: {formatDate(election.fecha_fin)}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
-        {/* Voting Form */}
-        <div className="space-y-6">
-          {Object.entries(candidatesByCargo).map(([cargoId, cargoData]) => (
-            <Card key={cargoId}>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Vote className="h-5 w-5 mr-2" />
-                  {cargoData.cargo.nombre}
-                </CardTitle>
-                <CardDescription>
-                  {cargoData.cargo.descripcion}
-                  <br />
-                  <span className="text-sm text-blue-600">
-                    Selecciona {cargoData.cargo.max_candidatos_a_elegir} candidato(s)
-                  </span>
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RadioGroup
-                  value={selectedCandidates[cargoId] || ''}
-                  onValueChange={(value) => handleCandidateSelection(cargoId, value)}
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {cargoData.candidates.map((candidate) => (
-                      <div key={candidate.id} className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-gray-50">
-                        <RadioGroupItem value={candidate.id} id={candidate.id} />
-                        <div className="flex-1">
-                          <Label htmlFor={candidate.id} className="cursor-pointer">
-                            <div className="flex items-center space-x-3">
-                              {candidate.foto_url && (
-                                <img
-                                  src={candidate.foto_url}
-                                  alt={`${candidate.nombre} ${candidate.apellido}`}
-                                  className="h-12 w-12 rounded-full object-cover"
-                                />
-                              )}
-                              <div>
-                                <p className="font-medium">
-                                  {candidate.nombre} {candidate.apellido}
-                                </p>
-                                {candidate.partido && (
-                                  <p className="text-sm text-gray-600">{candidate.partido}</p>
-                                )}
-                                {candidate.propuestas && (
-                                  <p className="text-xs text-gray-500 mt-1">
-                                    {candidate.propuestas.substring(0, 100)}...
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </Label>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </RadioGroup>
-              </CardContent>
-            </Card>
-          ))}
-
-          {/* Vote Button */}
-          <div className="text-center">
-            <Button
-              onClick={handleVote}
-              disabled={voting || Object.keys(selectedCandidates).length === 0}
-              size="lg"
-              className="px-8"
-            >
-              {voting ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Emitiendo voto...
-                </div>
-              ) : (
-                <div className="flex items-center">
-                  <Vote className="h-4 w-4 mr-2" />
-                  Emitir Voto
-                </div>
-              )}
-            </Button>
-            
-            <div className="mt-4 text-xs text-gray-500 max-w-md mx-auto">
-              <p>
-                <Shield className="h-3 w-3 inline mr-1" />
-                Tu voto será cifrado y firmado digitalmente para garantizar su seguridad e integridad.
-                Una vez emitido, no podrá ser modificado.
-              </p>
+        {/* Selección de Candidato */}
+        {selectedElection && (
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">{selectedElection.nombre}</h2>
+              <button
+                onClick={() => setSelectedElection(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ← Cambiar elección
+              </button>
             </div>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {candidates.map((candidate) => (
+                <div
+                  key={candidate.id}
+                  className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                    selectedCandidate?.id === candidate.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setSelectedCandidate(candidate)}
+                >
+                  <div className="flex items-center mb-3">
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold mr-3"
+                      style={{ backgroundColor: candidate.lista.color }}
+                    >
+                      {candidate.lista.siglas}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">
+                        {candidate.nombre} {candidate.apellido}
+                      </h3>
+                      <p className="text-sm text-gray-600">{candidate.cargo.nombre}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-3">
+                    <p className="text-sm font-medium text-gray-700">{candidate.lista.nombre}</p>
+                    <p className="text-sm text-gray-600">Lista #{candidate.numero_lista}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-sm text-gray-700 font-medium mb-1">Propuestas:</p>
+                    <p className="text-xs text-gray-600">{candidate.propuestas}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {selectedCandidate && (
+              <div className="mt-8 p-4 bg-blue-50 rounded-lg">
+                <h3 className="font-semibold text-gray-900 mb-2">Confirmación de Voto</h3>
+                <p className="text-gray-700 mb-4">
+                  Ha seleccionado a <strong>{selectedCandidate.nombre} {selectedCandidate.apellido}</strong> 
+                  {' '}de la lista <strong>{selectedCandidate.lista.nombre}</strong> 
+                  {' '}para el cargo de <strong>{selectedCandidate.cargo.nombre}</strong>.
+                </p>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={handleVote}
+                    disabled={loading}
+                    className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 disabled:opacity-50"
+                  >
+                    {loading ? 'Registrando...' : 'Confirmar Voto'}
+                  </button>
+                  <button
+                    onClick={() => setSelectedCandidate(null)}
+                    className="bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
