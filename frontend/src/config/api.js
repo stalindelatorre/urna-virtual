@@ -1,7 +1,7 @@
 // Configuración de la API para conectar con el backend
 const API_CONFIG = {
   // URL base del backend
-  BASE_URL: process.env.REACT_APP_API_URL || 'http://localhost:5000',
+  BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
   
   // Versión de la API
   API_VERSION: 'v1',
@@ -110,6 +110,9 @@ export const API_ENDPOINTS = {
     USERS: '/metricas/users',
     VOTES: '/metricas/votes',
     SYSTEM_HEALTH: '/metricas/system-health',
+    ELECTION_METRICS: (electionId) => `/metricas/election/${electionId}`,
+    USER_ACTIVITY: '/metricas/user-activity',
+    VOTING_STATS: '/metricas/voting-stats',
     DEMOGRAPHICS: '/metricas/demographics',
     AUDIT: '/metricas/audit'
   },
@@ -119,7 +122,7 @@ export const API_ENDPOINTS = {
     BASE: '/reports',
     ELECTION_RESULTS: (electionId) => `/reports/election/${electionId}/results`,
     USER_ACTIVITY: '/reports/user-activity',
-    SYSTEM_USAGE: '/reports/system-usage',
+    SYSTEM_AUDIT: '/reports/system-audit',
     TENANT_ACTIVITY: '/reports/tenant-activity',
     EXPORT_PDF: (reportId) => `/reports/${reportId}/pdf`,
     EXPORT_EXCEL: (reportId) => `/reports/${reportId}/excel`

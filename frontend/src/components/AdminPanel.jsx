@@ -70,18 +70,23 @@ const AdminPanel = () => {
   } = useListas();
 
   const {
+    metrics,
     loading: metricsLoading,
-    getSystemHealth
+    error: metricsError,
+    loadDashboardMetrics,
+    loadSystemHealth,
+    loadElectionMetrics
   } = useMetrics();
 
   // Cargar datos iniciales
   useEffect(() => {
-    fetchUsers();
-    fetchElections();
-    fetchCandidates();
-    fetchCargos();
-    fetchListas();
-  }, [fetchUsers, fetchElections, fetchCandidates, fetchCargos, fetchListas]);
+    loadUsers();
+    loadElections();
+    loadCandidates();
+    loadCargos();
+    loadListas();
+    loadDashboardMetrics();
+  }, []);
 
   // Funciones para manejar modales
   const openModal = (type, item = null) => {

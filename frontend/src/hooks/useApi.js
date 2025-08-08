@@ -5,6 +5,7 @@ import candidateService from '../services/candidateService.js';
 import cargoService from '../services/cargoService.js';
 import listaService from '../services/listaService.js';
 import authService from '../services/authService.js';
+import metricsService from '../services/metricsService.js';
 
 // Hook personalizado para gestión de usuarios con backend real
 export const useUsers = () => {
@@ -754,6 +755,78 @@ export const useApi = () => {
     error,
     executeApi,
     clearError
+  };
+};
+
+
+
+// Hook para métricas con backend real
+export const useMetrics = () => {
+  const [metrics, setMetrics] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const loadDashboardMetrics = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await metricsService.getDashboardMetrics();
+      if (result.success) {
+        setMetrics(result.data);
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      setError("Error al cargar métricas del dashboard");
+      console.error("Error loading dashboard metrics:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadSystemHealth = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await metricsService.getSystemHealth();
+      if (result.success) {
+        setMetrics(result.data);
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      setError("Error al cargar salud del sistema");
+      console.error("Error loading system health:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadElectionMetrics = async (electionId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await metricsService.getElectionMetrics(electionId);
+      if (result.success) {
+        setMetrics(result.data);
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      setError("Error al cargar métricas de elección");
+      console.error("Error loading election metrics:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    metrics,
+    loading,
+    error,
+    loadDashboardMetrics,
+    loadSystemHealth,
+    loadElectionMetrics
   };
 };
 
